@@ -5,6 +5,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .paginations import MusicPagination
 from rest_framework.permissions import  IsAuthenticatedOrReadOnly
 from django.db.models import F,Case,When,IntegerField
+from rest_framework.response import Response
+from django.utils import timezone
 # Create your views here.
 
 # ==================== Genre ViewSet ====================
@@ -30,3 +32,9 @@ class MusicModelViewSet(viewsets.ModelViewSet):
                     When(like__lt=F('dislike'), then=1),default=0,output_field=IntegerField(),)
             ).order_by('is_negative', 'uploaded_at')
         return qs
+  def retrieve(self, request, *args, **kwargs):
+    music = self.get_object()
+    if music.order_in_genre == 1:
+        music.genre.start_time = timezone.now()
+        music.genre.save(update_fields=['start_time'])
+    return Response(self.get_serializer(music).data)
