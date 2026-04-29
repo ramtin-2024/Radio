@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Music, LikeDislike, Genre
+from .models import Music, Genre
 from django.utils import timezone
 import zoneinfo
 
@@ -13,15 +13,16 @@ class MusicSerializer(serializers.ModelSerializer):
     cover_image_url = serializers.SerializerMethodField()
     genre_name = serializers.ReadOnlyField(source='genre.name')
     estimated_start = serializers.SerializerMethodField()
-    likes_count = serializers.SerializerMethodField()
-    dislikes_count = serializers.SerializerMethodField()
-    net_vote = serializers.ReadOnlyField()
+    likes_count = serializers.IntegerField(source='like', read_only=True)
+    dislikes_count = serializers.IntegerField(source='dislike', read_only=True)
+    net_vote = serializers.IntegerField(source='popularity', read_only=True)
 
     class Meta:
         model = Music
         fields = [
-            'id', 'estimated_start', 'order_in_genre', 'title', 'artist', 'duration', 'uploaded_at',
-            'audio_file', 'audio_file_url', 'cover_image', 'cover_image_url',
+            'id', 'estimated_start', 'order_in_genre', 'title', 'artist',
+            'duration', 'uploaded_at',
+            'audio_file_url', 'cover_image_url',
             'genre', 'genre_name', 'likes_count', 'dislikes_count', 'net_vote',
             'retry_count', 'is_active',
         ]
@@ -45,14 +46,3 @@ class MusicSerializer(serializers.ModelSerializer):
             return estimated_starts[obj.id].isoformat()
         return None
 
-    def get_likes_count(self, obj):
-        return obj.likes.filter(vote=LikeDislike.LIKE).count()
-
-    def get_dislikes_count(self, obj):
-        return obj.likes.filter(vote=LikeDislike.DISLIKE).count()
-
-class LikeDislikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LikeDislike
-        fields = ['id', 'music', 'vote', 'created_date']
-        read_only_fields = ['created_date']
