@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Music, Genre
-from django.utils import timezone
-import zoneinfo
+
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:

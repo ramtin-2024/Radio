@@ -3,7 +3,7 @@ from django.db import models
 from django.core.files import File
 from mutagen import File as MutagenFile
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, APIC
+from mutagen.id3 import ID3
 from datetime import timedelta
 from django.core.exceptions import ValidationError   
 from django.core.validators import FileExtensionValidator
